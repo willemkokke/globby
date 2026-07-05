@@ -375,6 +375,14 @@ export const convertPatternsForFastGlob = (patterns, usingGitRoot, normalizeDire
 			break; // Early exit on first negation
 		}
 
+		// Anchored patterns (e.g. `/foo`) are relative to the repo root, but fast-glob runs
+		// with `absolute: true` and would match them against the absolute candidate paths.
+		// That wrongly ignores everything when the project is checked out under a matching
+		// directory, so leave anchored patterns to the cwd-relative predicate.
+		if (pattern.startsWith('/')) {
+			continue;
+		}
+
 		result.push(normalizeDirectoryPatternForFastGlob(pattern));
 	}
 
